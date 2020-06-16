@@ -11,13 +11,11 @@ from tika import parser
 from docx import Document
 Config.set('graphics', 'resizable', False)
 
-
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
     defaultPath = os.path.join(
         os.environ['SYSTEMDRIVE'], '/Users', os.getlogin())
-
 
 class LangDialog(FloatLayout):
     save = ObjectProperty(None)
@@ -35,7 +33,6 @@ class LangDialog(FloatLayout):
                            'sk: Slovak', 'sq: Albanian', 'sr: Serbian', 'su: Sundanese', 'sv: Swedish', 'sw: Swahili', 'ta: Tamil', 'te: Telugu', 'th: Thai', 'tl: Filipino', 'tr: Turkish', 'uk: Ukrainian', 'ur: Urdu', 'vi: Vietnamese', 'zh-cn: Chinese (Mandarin/China)', 'zh-tw: Chinese (Mandarin/Taiwan)']
         self.listFiles = '\n'.join(Root.loadedList)
         self.initialValue = "Clique aqui para escolher a língua"
-
 
 class Root(FloatLayout):
     App.title = 'Conversor de Texto para MP3'
@@ -62,6 +59,7 @@ class Root(FloatLayout):
         if(len(filename) != 0):
             mime = filename[0].split('.')
             mime = '.' + mime[len(mime) - 1]
+            
             if (mime in Root.mimeTypes):
                 separator = '\n'
                 name = filename[0].split('\\')
@@ -74,6 +72,7 @@ class Root(FloatLayout):
     def show_lang(self):
         if (len(Root.loadedList) == 0):
             self.label1_wid.text = 'Não há arquivos na fila'
+        
         else:
             content = LangDialog(save=self.save, cancel=self.dismiss_popup)
             self._popup = Popup(title="Selecione a língua falada",
@@ -88,36 +87,49 @@ class Root(FloatLayout):
 
     def convert(self):
         if (Root.choosenLang != '' and len(Root.loadedList) > 0):
+            
             while (Root.loadedList):
                 mime = Root.loadedList[0].split('.')
                 text = ''
+                
                 if (mime[len(mime) - 1] == 'pdf'):
                     raw = parser.from_file(Root.fullpath[0])
                     content = raw['content'].split('\n')
                     i = 0
+                    
                     while i < len(content):
                         if content[i] == '' or content[i] == ' ':
                             del content[i]
+                        
                         else:
                             i += 1
+                    
                     text = '\n'.join(content)
 
                 elif (mime[len(mime) - 1] == 'docx'):
                     doc = Document(Root.fullpath[0])
                     content = []
+                    
                     for i in range(len(doc.paragraphs)):
                         if (doc.paragraphs[i].text != '' and doc.paragraphs[i].text != ' '):
                             content.append(doc.paragraphs[i].text)
+                    
                     text = '\n'.join(content)
+                
                 else:
                     content = []
+                    
                     with open(Root.fullpath[0], 'r', encoding='utf-8') as f:
                         for line in f:
                             content.append(line.split('\n')[0])
+                            
                             if(content[0] != '' and content[0] != ' '):
                                 text += line
+                            
                             del content[0]
+                    
                     f.close()
+                
                 self.use_gtts(text, Root.fullpath[0], mime[len(mime) - 1])
                 del Root.loadedList[0]
                 del Root.fullpath[0]
@@ -125,6 +137,7 @@ class Root(FloatLayout):
 
         elif (len(Root.loadedList) > 0):
             self.label1_wid.text = 'Selecione a língua a ser falada no áudio'
+        
         else:
             self.label1_wid.text = 'Não há arquivos na fila'
 
@@ -132,8 +145,10 @@ class Root(FloatLayout):
         try:
             lang = Root.choosenLang.split(':')[0]
             name = ''
+            
             if (type == 'docx'):
                 name = path[:-5]
+            
             else:
                 name = path[:-4]
 
