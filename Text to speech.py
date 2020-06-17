@@ -14,8 +14,7 @@ Config.set('graphics', 'resizable', False)
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
-    defaultPath = os.path.join(
-        os.environ['SYSTEMDRIVE'], '/Users', os.getlogin())
+    defaultPath = os.path.expanduser("~/Desktop")
 
 class LangDialog(FloatLayout):
     save = ObjectProperty(None)
